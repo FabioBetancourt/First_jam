@@ -28,9 +28,13 @@ public class PlayerController : MonoBehaviour
          playerRb.AddForce(Vector3.up * jumpForce, ForceMode.Impulse);
          isOnGround = false;
       }
-      if (Input.GetKeyDown(KeyCode.W))
+      if (Input.GetKey(KeyCode.W))
       {
-         //transform.Translate(Vector3.forward * (speed * Time.deltaTime));
+         transform.Translate(Vector3.forward * (speed * Time.deltaTime));
+      }
+      if (Input.GetKey(KeyCode.S))
+      {
+         transform.Translate(Vector3.back * (speed * Time.deltaTime));
       }
       
    }
