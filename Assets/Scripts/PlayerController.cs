@@ -14,6 +14,7 @@ public class PlayerController : MonoBehaviour
    public float gravityModifier;
    public bool isOnGround = true;
    private Animator animator;
+   private bool isRunning = false;
 
    private void Start()
    {
@@ -21,7 +22,14 @@ public class PlayerController : MonoBehaviour
       animator = GetComponent<Animator>();
       Physics.gravity *= gravityModifier;
    }
-
+   private void FixedUpdate()
+   {
+      if (isRunning)
+      {
+         playerRb.velocity = new Vector3(playerRb.velocity.x, playerRb.velocity.y, speed);
+      }
+   }
+   
    private void Update()
    {
       if (Input.GetKeyDown(KeyCode.Space) && isOnGround)
@@ -31,28 +39,41 @@ public class PlayerController : MonoBehaviour
          isOnGround = false;
       }
       
-      if (Input.GetKey(KeyCode.W))
+      if (Input.GetKeyDown(KeyCode.Space))
       {
-         transform.Translate(Vector3.forward * (speed * Time.deltaTime));
-         animator.SetBool("isRunning", true); // Activa la animación de correr
-         Debug.Log(animator.GetBool("isRunning"));
+         isRunning = true; 
       }
-      else if (Input.GetKeyUp(KeyCode.W))
+
+      if (playerRb.velocity.z > 0.1f)
       {
-         animator.SetBool("isRunning", false); // Detiene la animación de correr
+         animator.SetBool("isRunning", true);
+      }
+      else
+      {
+         animator.SetBool("isRunning", false);
       }
    }
    
    private void OnCollisionEnter(Collision collision)
    {
-      isOnGround = true;
-      if (Input.GetKey(KeyCode.W))
+      if (collision.gameObject.CompareTag("Ground"))
       {
-         animator.SetBool("isRunning", true); // Continúa la animación de correr si "W" todavía está siendo presionada
+         isOnGround = true;
+         if (Input.GetKey(KeyCode.W))
+         {
+            animator.SetBool("isRunning", true); // Continúa la animación de correr si "W" todavía está siendo presionada
+         }
+         else
+         {
+            animator.SetBool("isRunning", false); // Cambia a la animación por defecto si ninguna tecla está siendo presionada
+         }
       }
-      else
+
+      if (collision.gameObject.CompareTag("Obstacle"))
       {
-         animator.SetBool("isRunning", false); // Cambia a la animación por defecto si ninguna tecla está siendo presionada
+         animator.Play("Stumble Backwards");
+         isRunning = false;
+         playerRb.velocity = new Vector3(playerRb.velocity.x, playerRb.velocity.y, 0);
       }
    }
 }
